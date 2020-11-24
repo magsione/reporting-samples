@@ -1,0 +1,51 @@
+﻿@page "/"
+@namespace Blazor_UI_and_Report_Viewer.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blazor UI and Report Viewer</title>
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/site.css" rel="stylesheet" />
+    <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js" defer></script>
+    <link rel="stylesheet" href="_content/Telerik.UI.for.Blazor/css/kendo-theme-default/all.css" />
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    @* For Reports service hosted in the same project: *@
+    <script src="/api/reports/resources/js/telerikReportViewer"></script>
+    @* For Reports service hosted in another application / Report Server use absolute URI: *@
+    @*<script src="https://demos.telerik.com/report-server/api/reports/resources/js/telerikReportViewer"></script>*@
+
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-theme-default@latest/dist/all.css" />
+</head>
+<body>
+    <app>
+        <component type="typeof(App)" render-mode="ServerPrerendered" />
+    </app>
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
+
+    <script src="_content/telerik.reportviewer.blazor/interop.js" defer></script>
+    @* Or this one if using the Telerik.ReportViewer.Blazor.Trial package *@
+    @*<script src="_content/telerik.reportviewer.blazor.trial/interop.js" defer></script>*@
+</body>
+</html>

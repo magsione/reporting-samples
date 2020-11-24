@@ -1,0 +1,131 @@
+﻿@page "/counter"
+
+@using Blazor_UI_and_Report_Viewer.Models;
+@using Blazor_UI_and_Report_Viewer.Services;
+@using Telerik.DataSource;
+
+@inject DataService DataService
+
+@if (ShowReportViewer)
+{
+}
+
+<TelerikGrid Data=@GridData
+             OnUpdate="@UpdateHandler"
+             OnDelete="@DeleteHandler"
+             OnCreate="@CreateHandler"
+             @ref="@Grid"
+             Pageable="true"
+             Groupable="true"
+             Sortable="true"
+             FilterMode="GridFilterMode.FilterMenu"
+             Resizable="true"
+             Reorderable="true"
+             EditMode="GridEditMode.Popup"
+             SelectionMode="GridSelectionMode.Multiple"
+             OnStateInit="@((GridStateEventArgs<ProductBindingModel> args) => OnStateInit(args))"
+             PageSize="5"
+             Navigable="true">
+    <GridColumns>
+        <GridColumn Title="Image" Editable="false" Width="110px">
+            <Template>
+                @{
+                    var product = context as ProductBindingModel;
+                }
+                @if (product?.ThumbNailPhoto != null)
+                {
+                    var base64Image = Convert.ToBase64String(product.ThumbNailPhoto);
+                    <img src="@($"data:image/gif;base64,{base64Image}")" alt="@product.Name" />
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(ProductBindingModel.Name)" />
+        <GridColumn Field="@nameof(ProductBindingModel.StandardCost)" Title="Cost">
+            <Template>
+                @((context as ProductBindingModel).StandardCost.ToString("C2"))
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(ProductBindingModel.ActiveSelling)" Title="Active Selling" Editable="false" />
+        
+        <GridColumn Field="@nameof(ProductBindingModel.SellStartDate)" Title="Start Selling">
+            <Template>
+                @((context as ProductBindingModel).SellStartDate.ToString("MMMM dd, yyyy"))
+            </Template>
+        </GridColumn>
+        <GridCommandColumn Width="190px">
+            <GridCommandButton Command="ReportCommand" Icon="information" OnClick="@ReportHandler">See Report</GridCommandButton>
+            <GridCommandButton Command="Save" Icon="save" ShowInEdit="true">Update</GridCommandButton>
+            <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+            <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+            <GridCommandButton Command="Cancel" Icon="cancel" ShowInEdit="true">Cancel</GridCommandButton>
+        </GridCommandColumn>
+    </GridColumns>
+    <GridToolBar>
+        <GridCommandButton Command="Add" Icon="add">Add Product</GridCommandButton>
+    </GridToolBar>
+</TelerikGrid>
+
+
+
+
+@code {
+    public List<ProductBindingModel> GridData { get; set; }
+    //public List<ProductCategory> ProductCategories { get; set; }
+    public TelerikGrid<ProductBindingModel> Grid { get; set; }
+    public bool ShowReportViewer { get; set; } = false;
+    public int SelectedProductId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    // sample Read operation
+    private async Task LoadData()
+    {
+        GridData = await DataService.GetProductsAsync();
+        //ProductCategories = await ProductCategoryService.GetCategories();
+    }
+
+    private void OnStateInit(GridStateEventArgs<ProductBindingModel> args)
+    {
+        @*args.GridState.GroupDescriptors = new List<GroupDescriptor>()
+    {
+            new GroupDescriptor()
+            {
+                Member = nameof(ProductBindingModel.ProductCategoryName),
+                MemberType = typeof(string)
+            }
+        };*@
+    }
+
+    // sample CUD operations
+    public async Task UpdateHandler(GridCommandEventArgs args)
+    {
+        
+    }
+
+    public async Task DeleteHandler(GridCommandEventArgs args)
+    {
+        
+    }
+
+    public async Task CreateHandler(GridCommandEventArgs args)
+    {
+        
+    }
+
+    MarkupString ReportMarkup;
+    async Task ReportHandler(GridCommandEventArgs args)
+    {
+        System.Diagnostics.Debug.WriteLine((args.Item as ProductBindingModel).Name);
+        ShowReportViewer = true;
+
+    }
+
+    public void CloseModalHandler()
+    {
+        System.Diagnostics.Debug.WriteLine("parent closeModal called");
+        ShowReportViewer = false;
+    }
+}

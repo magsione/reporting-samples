@@ -1,0 +1,111 @@
+﻿@page "/"
+
+@using Blazor_UI_and_Report_Viewer.Models;
+@using Blazor_UI_and_Report_Viewer.Services;
+@using Telerik.ReportViewer.Blazor
+
+@inject DataService DataService
+
+@if (ShowReportViewer)
+{
+    <style>
+        #rv1 {
+            position: relative;
+            width: 1200px;
+            height: 600px;
+        }
+    </style>
+    <TelerikButton OnClick="@CloseModalHandler">Close Report Viewer</TelerikButton>
+    <ReportViewer ViewerId="rv1"
+                  ServiceUrl="/api/reports"
+                  ReportSource="@(new ReportSourceOptions()
+                                  {
+                                      Report = "ProductLineSales.trdp",
+                                      Parameters = new Dictionary<string, object>()
+                                      {
+                                          { "ProductCategory", SelectedProductCategory },
+                                          { "ProductSubcategory", SelectedProductSubcategory }
+                                      }
+                                  })"
+                  Parameters="@(new ParametersOptions { Editors = new EditorsOptions { MultiSelect = EditorType.ComboBox, SingleSelect = EditorType.ComboBox } })"
+                  ScaleMode="@(ScaleMode.Specific)"
+                  Scale="1.0" />
+}
+else
+{
+    <TelerikGrid Data=@GridData
+                 @ref="@Grid"
+                 Pageable="true"
+                 
+                 Groupable="true"
+                 Sortable="true"
+                 FilterMode="GridFilterMode.FilterMenu"
+                 Resizable="true"
+                 Reorderable="true"
+                 EditMode="GridEditMode.Popup"
+                 SelectionMode="GridSelectionMode.Multiple"
+                 OnStateInit="@((GridStateEventArgs<ProductCategoryBindingModel> args) => OnStateInit(args))"
+                 PageSize="15"
+                 Navigable="true">
+        <GridColumns>
+            <GridColumn Field="@nameof(ProductCategoryBindingModel.Name)" />
+            <GridColumn Field="@nameof(ProductCategoryBindingModel.ParentProductCategoryName)" />
+            <GridCommandColumn Width="190px">
+                <GridCommandButton Command="ReportCommand" Icon="information" OnClick="@ReportHandler">See Report</GridCommandButton>
+            </GridCommandColumn>
+        </GridColumns>
+    </TelerikGrid>
+}
+
+
+
+
+
+
+@code {
+    public List<ProductCategoryBindingModel> GridData { get; set; }
+    public TelerikGrid<ProductCategoryBindingModel> Grid { get; set; }
+    public bool ShowReportViewer { get; set; } = false;
+    public string SelectedProductSubcategory { get; set; }
+    public string SelectedProductCategory { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    // sample Read operation
+    private async Task LoadData()
+    {
+        GridData = await DataService.GetProductSubCategoriesAsync();
+    }
+
+    private void OnStateInit(GridStateEventArgs<ProductCategoryBindingModel> args)
+    {
+        @*args.GridState.GroupDescriptors = new List<GroupDescriptor>()
+            {
+                    new GroupDescriptor()
+                    {
+                        Member = nameof(ProductBindingModel.ProductCategoryName),
+                        MemberType = typeof(string)
+                    }
+                };*@
+    }
+
+    MarkupString ReportMarkup;
+    async Task ReportHandler(GridCommandEventArgs args)
+    {
+        System.Diagnostics.Debug.WriteLine((args.Item as ProductCategoryBindingModel).Name);
+        SelectedProductSubcategory = (args.Item as ProductCategoryBindingModel).Name;
+        SelectedProductCategory = (args.Item as ProductCategoryBindingModel).ParentProductCategoryName;
+        ShowReportViewer = true;
+
+    }
+
+    public void CloseModalHandler()
+    {
+        System.Diagnostics.Debug.WriteLine("parent closeModal called");
+        ShowReportViewer = false;
+    }
+}
+
